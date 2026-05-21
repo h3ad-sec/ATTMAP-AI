@@ -58,8 +58,7 @@ body.light .toggle-thumb { transform:translateX(22px); }
 .nav-item:hover .nav-dropdown { display:block; }
 .nav-links .nav-dropdown a { display:block; padding:7px 12px; font-family:var(--mono); font-size:var(--fs-xs); color:var(--muted); border:none; border-left:2px solid transparent; border-radius:0; transition:.15s; }
 .nav-links .nav-dropdown a:hover,.nav-links .nav-dropdown a.nav-current { color:var(--accent); border-left-color:var(--accent); background:rgba(0,255,159,.04); }
-.xv-nav-pill { display:flex; flex-direction:column; align-items:flex-start; gap:1px; margin-left:10px; padding-left:10px; border-left:1px solid var(--border); white-space:nowrap; flex-shrink:0; opacity:0; transform:translateX(-8px); pointer-events:none; transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1); }
-body.scrolled .xv-nav-pill { opacity:1; transform:translateX(0); pointer-events:auto; }
+.xv-nav-pill { display:flex; flex-direction:column; align-items:flex-start; gap:1px; margin-left:10px; padding-left:10px; border-left:1px solid var(--border); white-space:nowrap; flex-shrink:0; opacity:1; transform:none; pointer-events:auto; }
 .xv-pill-name { font-family:'Exo 2',sans-serif; font-weight:700; font-size:13px; letter-spacing:4px; line-height:1; }
 .xv-pill-accent { color:var(--accent); }
 .xv-pill-text { color:var(--text); }
