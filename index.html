@@ -203,9 +203,18 @@
   <main>
     <div class="input-card">
       <div class="input-group">
-        <label for="behavior-input">Behavior Description <span class="required">*</span></label>
-        <textarea id="behavior-input" rows="6"
-          placeholder="Describe the observed behavior, paste alert details, log snippets, or threat scenario — e.g., 'Process lsass.exe was accessed by mimikatz.exe with PROCESS_VM_READ permissions', or 'Scheduled task created pointing to %TEMP%\payload.exe', or paste raw log lines..."></textarea>
+        <div class="input-label-row">
+          <label for="behavior-input">Input <span class="required">*</span></label>
+          <div class="type-pill-row" id="type-pill-row">
+            <button class="type-pill active" data-type="auto">Auto</button>
+            <button class="type-pill" data-type="article">Article / Report</button>
+            <button class="type-pill" data-type="logs">Logs</button>
+            <button class="type-pill" data-type="alert">Alert Details</button>
+            <button class="type-pill" data-type="behavior">Behavior</button>
+          </div>
+        </div>
+        <textarea id="behavior-input" rows="7"
+          placeholder="Paste anything: threat intel article, raw log lines, SIEM/EDR alert details, or a behavior description.&#10;&#10;Examples:&#10;• Article: paste a CTI blog paragraph describing attacker activity&#10;• Logs: EventID 4688 / Sysmon / Windows Security / EVTX lines&#10;• Alert: paste the alert title, description, and any metadata fields&#10;• Behavior: 'lsass.exe accessed by mimikatz.exe with PROCESS_VM_READ'"></textarea>
       </div>
       <div class="input-group">
         <label for="threat-context">Known Context <span class="optional">optional</span></label>

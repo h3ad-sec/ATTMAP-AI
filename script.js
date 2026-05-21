@@ -11,13 +11,20 @@ const PROVIDER_KEY = 'attmap_active_provider';
 const SYSTEM_PROMPT = `You are an L3 SOC analyst and threat intelligence analyst with deep expertise in MITRE ATT&CK, adversary TTPs, and detection engineering.
 CRITICAL: Return ONLY raw JSON. No markdown fences, no preamble, no explanation. Invalid JSON breaks the tool.
 
+INPUT TYPES — handle each precisely:
+- ARTICLE/REPORT: Extract only explicitly described adversary behaviors from the text. Ignore speculative or hedged language ("may", "could", "typically"). Only map what the article states happened.
+- LOGS: Parse each log entry for observable behaviors (process creation, parent-child chains, network connections, file writes, registry ops, scheduled tasks, service installs, etc.). Map each observable to its most specific technique.
+- ALERT: Read the alert title, description, rule logic, and metadata fields. Map the specific behavior that triggered the alert — not the alert category name.
+- BEHAVIOR: Map the described action directly.
+- AUTO: Infer the input type and apply the matching approach above.
+
 STRICT DATA DISCIPLINE:
-- Only map techniques directly evidenced by the described behaviors — not adjacent or speculative
+- Only map techniques directly evidenced by the input — not adjacent, inferred, or speculative
 - Use the most specific sub-technique available (T1003.001, not T1003)
-- Confidence: HIGH = behavior directly maps; MEDIUM = likely but not confirmed; LOW = possible based on limited evidence
-- Detection gaps: only those relevant to the described behaviors
-- Hunting pivots: specific and actionable, grounded in the mapped techniques
-- If known threat actors or malware families use these techniques in context, name them
+- Confidence: HIGH = directly evidenced; MEDIUM = strongly implied; LOW = possible given limited signal
+- Detection gaps: only those relevant to the specific techniques mapped
+- Hunting pivots: specific and actionable — name exact fields, process names, or conditions to hunt on
+- If known threat actors or malware families use these techniques in the given context, name them
 - No filler, no generic advice, no em dashes
 
 Return JSON with exactly these four keys:
@@ -28,7 +35,7 @@ Return JSON with exactly these four keys:
       "name": "Technique Name (most specific sub-technique)",
       "tactic": "Tactic Name",
       "confidence": "HIGH or MEDIUM or LOW",
-      "relevance": "1-2 sentences: how this maps to the described behavior. Name known actors if applicable."
+      "relevance": "1-2 sentences: how this maps to the input evidence. Name known actors if applicable."
     }
   ],
   "kill_chain": {
@@ -36,12 +43,13 @@ Return JSON with exactly these four keys:
     "summary": "2-3 sentences on what attack phase or campaign pattern this suggests."
   },
   "detection_gaps": ["Specific gap — what telemetry is missing or what coverage needs improvement for these techniques"],
-  "hunting_pivots": ["Specific actionable hunt concept — e.g., 'Hunt for LSASS handles from non-system processes with PROCESS_VM_READ across DCs in last 30 days'"]
+  "hunting_pivots": ["Specific actionable hunt — name exact process, field, or condition, e.g. 'Hunt for LSASS handles from non-system processes with PROCESS_VM_READ access rights across all DCs in the last 30 days'"]
 }
 Map 3-8 techniques. Write 2-4 detection gaps and 3-5 hunting pivots.`;
 
-let activeProvider = localStorage.getItem(PROVIDER_KEY) || 'anthropic';
-let currentResult  = null;
+let activeProvider  = localStorage.getItem(PROVIDER_KEY) || 'anthropic';
+let activeInputType = 'auto';
+let currentResult   = null;
 
 async function callAI(userMessage) {
   const p      = PROVIDERS[activeProvider];
@@ -205,7 +213,9 @@ generateBtn.addEventListener('click', async () => {
   generateBtn.disabled = true;
   try {
     const ctx = document.getElementById('threat-context').value.trim();
-    const msg = `Behavior description:\n${behavior}${ctx?'\n\nKnown context: '+ctx:''}`;
+    const typeLabels = { auto:'AUTO', article:'ARTICLE/REPORT', logs:'LOGS', alert:'ALERT', behavior:'BEHAVIOR' };
+    const typeLabel  = typeLabels[activeInputType] || 'AUTO';
+    const msg = `Input type: ${typeLabel}\n\n${behavior}${ctx?'\n\nKnown context: '+ctx:''}`;
     const raw    = await callAI(msg);
     const result = parseJSON(raw);
     loadingEl.classList.add('hidden');
@@ -258,5 +268,13 @@ document.getElementById('theme-toggle').addEventListener('click',()=>{const next
 window.addEventListener('scroll',()=>document.body.classList.toggle('scrolled',window.scrollY>40),{passive:true});
 function toggleDrawer(){document.getElementById('navDrawer').classList.toggle('open');}
 function closeDrawer(){document.getElementById('navDrawer').classList.remove('open');}
+
+document.querySelectorAll('.type-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeInputType = pill.dataset.type;
+  });
+});
 
 updateKeyStatus(); updateBadge(); updateNotice(); updateBtn(); loadModal();

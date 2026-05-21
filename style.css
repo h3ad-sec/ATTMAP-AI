@@ -1426,3 +1426,17 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
 .pivot-item { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border); }
 .pivot-item:last-child { border-bottom:none; }
 .pivot-num { font-family:var(--mono); font-size:10px; font-weight:700; color:var(--accent2); min-width:18px; padding-top:2px; flex-shrink:0; }
+
+/* ── Input type pills ─────────────────────────────────────────────────────── */
+.input-label-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+.input-label-row label { margin-bottom:0; }
+.type-pill-row { display:flex; gap:4px; flex-wrap:wrap; }
+.type-pill {
+  font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+  padding:3px 10px; border-radius:3px;
+  background:transparent; border:1px solid var(--border);
+  color:var(--muted); cursor:pointer; transition:.15s;
+  text-transform:uppercase;
+}
+.type-pill:hover { border-color:var(--accent); color:var(--accent); }
+.type-pill.active { background:var(--primary-dim); border-color:var(--accent); color:var(--accent); }
