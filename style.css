@@ -1228,6 +1228,7 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   #navLogo { height:19px; }
   .tagline { display:none; }
   .key-status { display:none; }
+  .xv-nav-pill { display:none !important; }
 
   /* Layout */
   main { padding:calc(var(--nav-h) + var(--hero-h) + 10px) 10px 28px; gap:8px; }
@@ -1239,12 +1240,17 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   /* Input actions — generate btn expands, clear stays ghost */
   .input-actions { flex-wrap:wrap; gap:8px; }
   .input-actions .btn-primary { flex:1 1 auto; min-width:0; }
+  .input-actions #clear-btn { flex-shrink:0; }
+  #active-provider-badge { flex-shrink:0; }
 
   /* Output header — stack vertically */
   .output-header { flex-direction:column; align-items:flex-start; gap:10px; }
   .output-actions { display:flex; flex-wrap:wrap; gap:6px; width:100%; }
   .export-format-tabs { flex:1 1 auto; }
   .output-title { font-size:var(--fs-md); letter-spacing:1.5px; word-break:break-word; }
+  .output-actions #copy-all-btn,
+  .output-actions #export-btn,
+  .output-actions #new-btn { flex:1 1 auto; text-align:center; justify-content:center; }
 
   /* Grids → single column */
   .verdict-grid { grid-template-columns:1fr; }
@@ -1287,6 +1293,20 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
 
   /* Section title text */
   .section-title { font-size:9px; letter-spacing:2px; }
+
+  /* Hero — tighter typography on mobile */
+  .hero-title-row { font-size:18px; letter-spacing:3px; }
+  .hero-tagline { letter-spacing:1.5px; }
+
+  /* Textarea / input — full width guard */
+  textarea, input[type="text"] { width:100%; min-width:0; }
+
+  /* ATTMAP-AI specific — tactic chain wraps */
+  .tactic-chain { gap:4px; }
+  .tactic-badge { font-size:10px; padding:4px 8px; }
+
+  /* Technique header wraps on small screens */
+  .technique-header { gap:6px; }
 }
 
 /* ── XS phones (≤400px) ──────────────────────────────────────────────────── */
@@ -1302,6 +1322,11 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   .btn-ghost { padding:9px 12px; }
   .section-header { padding:9px 10px; }
   .section-body { padding:12px 10px; }
+  .hero-title-row { font-size:15px; letter-spacing:2px; }
+  .hero-tagline { display:none; }
+  .hero-breadcrumb { font-size:9px; }
+  main { padding:calc(var(--nav-h) + var(--hero-h) + 8px) 8px 24px; }
+  .input-card { padding:10px 8px; }
 }
 
 /* ── Mode tabs (8-tab analysis mode selector) ────────────────────── */
