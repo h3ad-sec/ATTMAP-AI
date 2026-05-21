@@ -1220,6 +1220,10 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   .mitre-grid { grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); }
 }
 
+@media(max-width:1000px){
+  .xv-nav-pill{opacity:1;transform:none;pointer-events:auto;transition:none;}
+}
+
 /* ── Mobile (≤640px) ─────────────────────────────────────────────────────── */
 @media (max-width:640px) {
   /* Nav */
@@ -1228,7 +1232,6 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   #navLogo { height:19px; }
   .tagline { display:none; }
   .key-status { display:none; }
-  .xv-nav-pill { display:none !important; }
 
   /* Layout */
   main { padding:calc(var(--nav-h) + var(--hero-h) + 10px) 10px 28px; gap:8px; }
