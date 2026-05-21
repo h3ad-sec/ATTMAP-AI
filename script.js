@@ -102,7 +102,13 @@ async function callAI(userMessage) {
 function parseJSON(raw) {
   let s = raw.trim();
   s = s.replace(/^```(?:json)?\n?/i,'').replace(/\n?```$/,'');
-  return JSON.parse(s);
+  try {
+    return JSON.parse(s);
+  } catch(_) {
+    // Fix unescaped backslashes (Windows paths in log inputs, e.g. C:\Windows\)
+    s = s.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+    return JSON.parse(s);
+  }
 }
 
 function esc(s) {
