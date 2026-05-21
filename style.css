@@ -1221,6 +1221,8 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
 }
 
 @media(max-width:1000px){
+  :root{--hero-h:0px;}
+  .ia-hero{display:none;}
   .xv-nav-pill{opacity:1;transform:none;pointer-events:auto;transition:none;}
 }
 
