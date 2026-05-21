@@ -64,7 +64,8 @@ body.light .toggle-thumb { transform:translateX(22px); }
 .xv-pill-text { color:var(--text); }
 .xv-pill-tagline { font-family:'Exo 2',sans-serif; font-weight:400; font-size:8px; color:var(--muted); letter-spacing:1.5px; }
 
-@media (max-width:900px) { .nav-links { display:none; } .hamburger { display:flex; } }
+body.nav-compact .nav-links { display:none; }
+body.nav-compact .hamburger { display:flex; }
 
 .key-status {
   font-family:var(--mono);
@@ -1228,6 +1229,8 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
 /* ── Mobile (≤640px) ─────────────────────────────────────────────────────── */
 @media (max-width:640px) {
   /* Nav */
+  .nav-links { display:none; }
+  .hamburger { display:flex; }
   nav { padding:0 10px; gap:6px; }
   .nav-brand { margin-right:6px; }
   #navLogo { height:19px; }
