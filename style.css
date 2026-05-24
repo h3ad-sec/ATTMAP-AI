@@ -17,6 +17,13 @@
 
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--primary, #00d4ff);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
 body {
   background:var(--bg);
   color:var(--text);
