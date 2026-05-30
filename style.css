@@ -1323,6 +1323,20 @@ body.light .history-panel { background:rgba(255,255,255,.92); }
   .technique-header { gap:6px; }
 }
 
+/* ── Small mobile (≤480px) ───────────────────────────────────────────────── */
+@media (max-width:480px) {
+  .nav-right { gap:4px; padding-left:6px; }
+  .icon-btn { padding:7px 8px; }
+  .input-actions { flex-direction:column; align-items:stretch; }
+  .input-actions .btn-primary { width:100%; }
+  .input-actions .btn-ghost { width:100%; text-align:center; justify-content:center; }
+  #active-provider-badge { align-self:flex-start; }
+  .provider-tabs { flex-wrap:wrap; gap:4px; }
+  .provider-tab { flex:1 1 auto; padding:6px 10px; text-align:center; }
+  .modal, .modal-wide { width:98vw; padding:0; }
+  .modal-body { padding:14px; gap:10px; }
+}
+
 /* ── XS phones (≤400px) ──────────────────────────────────────────────────── */
 @media (max-width:400px) {
   nav { padding:0 8px; gap:4px; }
