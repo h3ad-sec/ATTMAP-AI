@@ -8,6 +8,30 @@ const PROVIDERS = {
 };
 const PROVIDER_KEY = 'attmap_active_provider';
 
+// ── QUERYBASE lookup ──────────────────────────────────────────────────────────
+const QB_INDEX = 'https://raw.githubusercontent.com/h3ad-sec/QUERYBASE/main/index/queries.json';
+const QB_RAW   = 'https://raw.githubusercontent.com/h3ad-sec/QUERYBASE/main/';
+let _qbIndex   = null;
+
+async function fetchQueriesForTechniques(techniqueIds) {
+  try {
+    if (!_qbIndex) {
+      const r = await fetch(QB_INDEX);
+      if (!r.ok) return [];
+      _qbIndex = await r.json();
+    }
+    const useOrder = { detection: 0, hunting: 1, triage: 2, forensic: 3 };
+    const matches = (_qbIndex.queries || []).filter(q =>
+      techniqueIds.some(tid => q.technique === tid || q.technique.startsWith(tid.split('.')[0]))
+    ).sort((a, b) => {
+      const src = (a.source === 'original' ? 0 : 1) - (b.source === 'original' ? 0 : 1);
+      return src !== 0 ? src : (useOrder[a.use_case] ?? 9) - (useOrder[b.use_case] ?? 9);
+    }).slice(0, 6);
+    if (!matches.length) return [];
+    return (await Promise.all(matches.map(q => fetch(QB_RAW + q.file).then(r => r.json()).catch(() => null)))).filter(Boolean);
+  } catch { return []; }
+}
+
 const SYSTEM_PROMPT = `You are an L3 SOC analyst and threat intelligence analyst with deep expertise in MITRE ATT&CK, adversary TTPs, and detection engineering.
 CRITICAL: Return ONLY raw JSON. No markdown fences, no preamble, no explanation. Invalid JSON breaks the tool.
 
@@ -168,6 +192,27 @@ function renderPivots(pivots) {
     </div>`).join('');
 }
 
+function renderRelatedQueries(queries) {
+  if (!queries.length) return;
+  const html = queries.map(q => {
+    const qText = (q.query || '').replace(/\\n/g, '\n');
+    const langBadge = `<span class="confidence-badge conf-medium" style="text-transform:uppercase;font-size:9px;">${esc(q.language)}</span>`;
+    const ucBadge   = `<span class="confidence-badge conf-low" style="font-size:9px;">${esc(q.use_case)}</span>`;
+    return `<div class="technique-card" style="margin-bottom:10px;">
+      <div class="technique-header">
+        <span class="technique-id">${esc(q.technique)}</span>
+        <span class="technique-name">${esc(q.title)}</span>
+        ${langBadge}${ucBadge}
+        <button class="copy-btn" style="font-size:10px;padding:2px 8px;margin-left:auto;" onclick="navigator.clipboard.writeText(${JSON.stringify(qText)})">⧉</button>
+      </div>
+      <pre style="margin:8px 0 0;padding:10px;background:var(--surface);border-radius:6px;font-size:11px;white-space:pre-wrap;word-break:break-all;color:var(--text);">${esc(qText)}</pre>
+    </div>`;
+  }).join('');
+  document.getElementById('cards-container').insertAdjacentHTML('beforeend',
+    makeCard('⌕', 'Related Queries from QUERYBASE', html)
+  );
+}
+
 function renderOutput(result, title) {
   currentResult = result;
   document.getElementById('output-title').textContent = title;
@@ -178,6 +223,8 @@ function renderOutput(result, title) {
     makeCard('○', 'Detection Gaps',         renderList(result.detection_gaps, 'gap-item')),
     makeCard('⌕', 'Hunting Pivots',         renderPivots(result.hunting_pivots))
   ].join('');
+  const ids = (result.techniques || []).map(t => t.id).filter(Boolean);
+  if (ids.length) fetchQueriesForTechniques(ids).then(renderRelatedQueries);
 }
 
 function copyCard(btn) {
