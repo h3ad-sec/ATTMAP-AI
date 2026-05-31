@@ -13,6 +13,34 @@ const QB_INDEX = 'https://raw.githubusercontent.com/h3ad-sec/QUERYBASE/main/inde
 const QB_RAW   = 'https://raw.githubusercontent.com/h3ad-sec/QUERYBASE/main/';
 let _qbIndex   = null;
 
+async function getQuerybaseExamples(keywords) {
+  try {
+    if (!_qbIndex) {
+      const r = await fetch(QB_INDEX);
+      if (!r.ok) return '';
+      _qbIndex = await r.json();
+    }
+    const kw = (keywords || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3);
+    const score = q => {
+      const hay = [q.title, q.technique_name, q.description, ...(q.tags || [])].join(' ').toLowerCase();
+      const s   = kw.reduce((n, w) => n + (hay.includes(w) ? 1 : 0), 0);
+      return { ...q, _s: s + (q.source === 'original' ? 0.5 : 0) };
+    };
+    const scored = (_qbIndex.queries || []).map(score).filter(q => !kw.length || q._s > 0).sort((a, b) => b._s - a._s);
+    if (!scored.length) return '';
+    const detect = scored.filter(q => q.use_case === 'detection').slice(0, 2);
+    const hunt   = scored.filter(q => q.use_case === 'hunting' || q.use_case === 'triage').slice(0, 1);
+    const top    = [...detect, ...hunt].slice(0, 3);
+    if (!top.length) return '';
+    const full = await Promise.all(top.map(q => fetch(QB_RAW + q.file).then(r => r.json()).catch(() => null)));
+    const examples = full.filter(Boolean).map(q =>
+      `### ${q.title} [${q.technique}] — ${q.use_case} (${q.language})\n\`\`\`${q.language}\n${(q.query || '').replace(/\\n/g, '\n').trim()}\n\`\`\``
+    ).join('\n\n');
+    if (!examples) return '';
+    return `\n\n--- QUERYBASE REFERENCE (style/structure only — do not copy values) ---\n\n${examples}\n\n--- END QUERYBASE REFERENCE ---`;
+  } catch { return ''; }
+}
+
 async function fetchQueriesForTechniques(techniqueIds) {
   try {
     if (!_qbIndex) {
@@ -268,7 +296,8 @@ generateBtn.addEventListener('click', async () => {
     const ctx = document.getElementById('threat-context').value.trim();
     const typeLabels = { auto:'AUTO', article:'ARTICLE/REPORT', logs:'LOGS', alert:'ALERT', behavior:'BEHAVIOR' };
     const typeLabel  = typeLabels[activeInputType] || 'AUTO';
-    const msg = `Input type: ${typeLabel}\n\n${behavior}${ctx?'\n\nKnown context: '+ctx:''}`;
+    const examples   = await getQuerybaseExamples(behavior + ' ' + ctx);
+    const msg = `Input type: ${typeLabel}\n\n${behavior}${ctx?'\n\nKnown context: '+ctx:''}${examples}`;
     const raw    = await callAI(msg);
     const result = parseJSON(raw);
     loadingEl.classList.add('hidden');
